@@ -1,0 +1,9 @@
+{
+    "MessageType": 1,
+    "movement": 4,
+    "led": 0,
+    "motor": {
+      "form_type":"A",
+      "deg":[360.0, -360]
+    }
+}
