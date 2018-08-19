@@ -20,7 +20,7 @@ HSV_CONV = 0.70 #HSV, 360dankai => 256dankai , 250/360 = 0.7
 colorRange = [[30*HSV_CONV,330*HSV_CONV], [210*HSV_CONV,240*HSV_CONV], [80*HSV_CONV,150*HSV_CONV], [240*HSV_CONV,300*HSV_CONV],[40*HSV_CONV,80*HSV_CONV]]
 
 
-#Json
+# Json
 f = open('RaspberryPiMessage_A.json', 'r')
 send_message_dict = json.load(f)
 
