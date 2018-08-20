@@ -11,6 +11,10 @@ FRAME_H = 600
 
 GRAY_THRESHOLD = 50 # GRAYスケールの閾値
 
+#ノイズの輪郭を制限する定数
+NOISE_MIN = 1e3
+NOISE_MAX = 1e5
+
 #コマンドライン引数の受け取りのため
 args = sys.argv
 
@@ -42,7 +46,7 @@ def detect_contour(src, blocksize, param1):
     area = cv2.contourArea(contours[i])
 
     # ノイズ（小さすぎる領域）と全体の輪郭（大きすぎる領域）を除外
-    if area < 1e2 or 1e5 < area:
+    if area < NOISE_MIN or NOISE_MAX < area:
       continue
 
     # 外接矩形
