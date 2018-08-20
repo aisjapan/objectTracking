@@ -6,14 +6,13 @@ import numpy as np
 import sys
 
 # フレームサイズ
-FRAME_W = 480
-FRAME_H = 360
+FRAME_W = 800
+FRAME_H = 600
 
 GRAY_THRESHOLD = 50 # GRAYスケールの閾値
 
 #コマンドライン引数の受け取りのため
 args = sys.argv
-
 
 # 指定した画像(path)の物体を検出し、外接矩形の画像を出力します
 def detect_contour(src, blocksize, param1):
@@ -60,13 +59,13 @@ def detect_contour(src, blocksize, param1):
   # 外接矩形された画像を表示
   cv2.imshow('output', src)
   
-  #k = cv2.waitKey(0)
+  k = cv2.waitKey(0)
   # ESC:プログラム終了,s:セーブ＋プログラム終了
-  #if k == 27:         # wait for ESC key to exit
-    #cv2.destroyAllWindows()
-  #elif k == ord('s'): # wait for 's' key to save and exit
-  cv2.imwrite('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_output\\gaussian_test_11_x\\' + args[1] + '_' + str(blocksize) + '_' + str(int(param1)) + '.jpg',src)
-  cv2.destroyAllWindows()
+  if k == 27:         # wait for ESC key to exit
+    cv2.destroyAllWindows()
+  elif k == ord('s'): # wait for 's' key to save and exit
+   cv2.imwrite('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_output\\200mm_test\\' + args[1] + '_' + str(blocksize) + '_' + str(int(param1)) + '.jpg',src)
+   cv2.destroyAllWindows()
 
   # 終了処理
   cv2.destroyAllWindows()
@@ -82,7 +81,7 @@ def cut_circle(img):
     white_img.fill(0)
 
     # 中央右寄りに、白で塗りつぶされた円形を描く
-    cv2.circle(white_img, ((int)(FRAME_W/2-25), (int)(FRAME_H/2-10)), 150, (255), -1)
+    cv2.circle(white_img, ((int)(FRAME_W/2), (int)(FRAME_H/2+10)), 250, (255), -1)
     
     # マスク処理(ミラー部分だけを切り取る)
     result = cv2.bitwise_and(img, img, mask=white_img)
@@ -90,8 +89,8 @@ def cut_circle(img):
     return result
 
 if __name__ == '__main__':
-  for i in range(1,50):
-  	image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\objectTracking\\image_input\\Image30cm2.jpg')
+  for i in range(1,2):
+  	image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\objectTracking\\image_input\\200mm.jpg')
   	image = cut_circle(image)
   	image = cv2.flip(image,1)
   	detect_contour(image,11,float(i))
