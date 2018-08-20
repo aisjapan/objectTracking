@@ -44,6 +44,8 @@ def detect_contour(src, blocksize, param1):
 
     # 輪郭の領域を計算
     area = cv2.contourArea(contours[i])
+    epsilon = 0.1*cv2.arcLength(contours[i],True)
+    approx = cv2.approxPolyDP(contours[i],epsilon,True)
 
     # ノイズ（小さすぎる領域）と全体の輪郭（大きすぎる領域）を除外
     if area < NOISE_MIN or NOISE_MAX < area:
@@ -52,8 +54,8 @@ def detect_contour(src, blocksize, param1):
     # 外接矩形
     if len(contours[i]) > 0:
       rect = contours[i]
-      x, y, w, h = cv2.boundingRect(rect)
-      cv2.rectangle(src, (x, y), (x + w, y + h), (0, 255, 0), 2)
+      x, y, w, h = cv2.boundingRect(approx)
+      cv2.rectangle(approx, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
       # 外接矩形毎に画像を保存
       # cv2.imwrite('{C:\Users\nct20\Documents\AIS}' + str(detect_count) + '.jpg', src[y:y + h, x:x + w])
@@ -61,14 +63,14 @@ def detect_contour(src, blocksize, param1):
       detect_count = detect_count + 1
 
   # 外接矩形された画像を表示
-  cv2.imshow('output', src)
+  #cv2.imshow('output', src)
   
   k = cv2.waitKey(0)
   # ESC:プログラム終了,s:セーブ＋プログラム終了
   if k == 27:         # wait for ESC key to exit
     cv2.destroyAllWindows()
   elif k == ord('s'): # wait for 's' key to save and exit
-   cv2.imwrite('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_output\\200mm_test\\' + args[1] + '_' + str(blocksize) + '_' + str(int(param1)) + '.jpg',src)
+   cv2.imwrite('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_output\\200mm_test\\' + args[1] + '_' + str(blocksize) + '_' + str(int(param1)) + '.jpg',approx)
    cv2.destroyAllWindows()
 
   # 終了処理
@@ -93,7 +95,7 @@ def cut_circle(img):
     return result
 
 if __name__ == '__main__':
-  for i in range(1,2):
+  for i in range(1,11):
   	image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\objectTracking\\image_input\\200mm.jpg')
   	image = cut_circle(image)
   	image = cv2.flip(image,1)
