@@ -25,7 +25,7 @@ def detect_contour(src, blocksize, param1):
   #retval, th1 = cv2.threshold(gray, GRAY_THRESHOLD, 255, cv2.THRESH_BINARY)
   #th2 = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
   th3 = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,blocksize,param1)
-  cv2.imshow('Result',th3)
+  #cv2.imshow('Result',th3)
 
   # 輪郭を抽出
   #   contours : [領域][Point No][0][x=0, y=1]
@@ -58,15 +58,15 @@ def detect_contour(src, blocksize, param1):
       detect_count = detect_count + 1
 
   # 外接矩形された画像を表示
-  #cv2.imshow('output', src)
+  cv2.imshow('output', src)
   
   #k = cv2.waitKey(0)
   # ESC:プログラム終了,s:セーブ＋プログラム終了
   #if k == 27:         # wait for ESC key to exit
     #cv2.destroyAllWindows()
   #elif k == ord('s'): # wait for 's' key to save and exit
-    cv2.imwrite('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_output\\gaussian_test_11_x\\' + args[1] + '_' + str(blocksize) + '_' + str(int(param1)) + '.jpg',th3)
-    cv2.destroyAllWindows()
+  cv2.imwrite('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_output\\gaussian_test_11_x\\' + args[1] + '_' + str(blocksize) + '_' + str(int(param1)) + '.jpg',src)
+  cv2.destroyAllWindows()
 
   # 終了処理
   cv2.destroyAllWindows()
@@ -90,7 +90,7 @@ def cut_circle(img):
     return result
 
 if __name__ == '__main__':
-  for i in range(1,3):
+  for i in range(1,50):
   	image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\objectTracking\\image_input\\Image30cm2.jpg')
   	image = cut_circle(image)
   	image = cv2.flip(image,1)
