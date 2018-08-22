@@ -19,7 +19,7 @@ FRAME_W = 800
 FRAME_H = 600
 
 #読み込むピクチャのファイル名
-FILE_DIST = 500
+FILE_DIST = 1000
 
 HSV_CONV = 0.70 #HSV, 360dankai => 256dankai , 250/360 = 0.7
 #colorRange = [[RedMin],[RedMax],[BlueMin],[BlueMax],[GreenMin],[GreenMax],[PurpleMin][PurpleMax],[YellowMin][YellowMax]]
@@ -129,7 +129,7 @@ if __name__ == '__main__':
      image = cv2.drawContours(image,[box],0,(0,0,255),2)
      print ('w:' + str(rectB[1][0]) + ',h:' + str(rectB[1][1]))
      #print (str(900 - rectB[3]*700/42) + '[mm]')
-     print (str(880141/(rectB[1][0]*rectB[1][1])))
+     print (str(200198*((rectB[1][0]*rectB[1][1])**(-0.808))))
      #print (str(880141/87.908*99.936*100/(rectB[1][0]*rectB[1][1])) + '[mm]')
      #ミラー画像上での距離の導出
      #print (math.sqrt( ((rectB[0][0] + rectB[1][0]/2) - FRAME_W/2)**2 + ((rectB[0][1] + rectB[1][1]/2) - (FRAME_H/2+10))**2 ))
