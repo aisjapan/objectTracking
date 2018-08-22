@@ -18,6 +18,9 @@ args = sys.argv
 FRAME_W = 800
 FRAME_H = 600
 
+#読み込むピクチャのファイル名
+FILE_DIST = 500
+
 HSV_CONV = 0.70 #HSV, 360dankai => 256dankai , 250/360 = 0.7
 #colorRange = [[RedMin],[RedMax],[BlueMin],[BlueMax],[GreenMin],[GreenMax],[PurpleMin][PurpleMax],[YellowMin][YellowMax]]
 colorRange = [[30*HSV_CONV,330*HSV_CONV], [200*HSV_CONV,240*HSV_CONV], [80*HSV_CONV,150*HSV_CONV], [240*HSV_CONV,300*HSV_CONV],[40*HSV_CONV,80*HSV_CONV]]
@@ -87,7 +90,6 @@ def find_rect_of_target_color(getImage,colorNum):
       #rect = cv2.boundingRect(approx)
 
       rect = cv2.minAreaRect(approx)
-      #print (rect)
       #box = cv2.boxPoints(rect)
       #box = np.int0(box)
       rects.append(np.array(rect))
@@ -98,7 +100,7 @@ def find_rect_of_target_color(getImage,colorNum):
 if __name__ == '__main__':
 
   # Loading Image's
-  image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\200mm.jpg')
+  image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\'+str(FILE_DIST)+'mm.jpg')
   template = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\robot_sample_200mm.jpg',0)
 
   rectsR = []
@@ -127,11 +129,12 @@ if __name__ == '__main__':
      image = cv2.drawContours(image,[box],0,(0,0,255),2)
      print ('w:' + str(rectB[1][0]) + ',h:' + str(rectB[1][1]))
      #print (str(900 - rectB[3]*700/42) + '[mm]')
-     #print (87*42*200/(rectB[2]*rectB[3]))
+     print (str(880141/(rectB[1][0]*rectB[1][1])))
+     #print (str(880141/87.908*99.936*100/(rectB[1][0]*rectB[1][1])) + '[mm]')
      #ミラー画像上での距離の導出
-     print (math.sqrt( ((rectB[0][0] + rectB[1][0]/2) - FRAME_W/2)**2 + ((rectB[0][1] + rectB[1][1]/2) - (FRAME_H/2+10))**2 ))
+     #print (math.sqrt( ((rectB[0][0] + rectB[1][0]/2) - FRAME_W/2)**2 + ((rectB[0][1] + rectB[1][1]/2) - (FRAME_H/2+10))**2 ))
+     #radiusV = (math.sqrt( (rectB[0][0] - FRAME_W/2)**2 + (rectB[0][1] - (FRAME_H/2+10))**2 ))
      #print (str(radiusV/194.28394169359444 * 200) + '[mm]')
-
 
   #originX,originY = (int)(FRAME_W/2+10), (int)(FRAME_H/2-20)
   #x, y = rectR[0]+(int)(rectR[2]/2.0), rectR[1]+(int)(rectR[3]/2.0)
