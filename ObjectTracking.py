@@ -9,6 +9,7 @@ import serial
 import threading
 import json
 import sys
+import math
 
 #コマンドライン引数の受け取りのため
 args = sys.argv
@@ -51,7 +52,7 @@ def cut_circle(img):
 
   # マスク処理(ミラー部分だけを切り取る)
   result = cv2.bitwise_and(img, img, mask=white_img)
-    
+
   return result
 
 # Find Target Color
@@ -60,7 +61,7 @@ def find_rect_of_target_color(getImage,colorNum):
   h = hsv[:, :, 0]
   s = hsv[:, :, 1]
   mask = np.zeros(h.shape, dtype=np.uint8)
-  
+
   #Red
   if(colorNum == 1):
       mask[( (h < colorRange[0][0]) | (h > colorRange[0][1]) ) & (s > 128)] = 255
@@ -79,53 +80,58 @@ def find_rect_of_target_color(getImage,colorNum):
 
   getImage,contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
   rects = []
-  
+
   for i in range(0,2):
     for contour in contours:
       approx = cv2.convexHull(contour)
-      rect = cv2.boundingRect(approx)
+      #rect = cv2.boundingRect(approx)
+
+      rect = cv2.minAreaRect(approx)
+      #print (rect)
+      #box = cv2.boxPoints(rect)
+      #box = np.int0(box)
       rects.append(np.array(rect))
+      #box.append(np.array(box))
 
   return rects
-
 
 if __name__ == '__main__':
 
   # Loading Image's
-  image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\1000mm.jpg')
+  image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\200mm.jpg')
   template = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\robot_sample_200mm.jpg',0)
-  
+
   rectsR = []
   rectsB = []
   rectsG = []
   #print ("Hello!!")
   image = cut_circle(image)
   #image = cv2.flip(image,1)
-  #image = frame_image 
-  
+  #image = frame_image
+
   rectsR = find_rect_of_target_color(image, 1)
   rectsB = find_rect_of_target_color(image, 2)
   rectsG = find_rect_of_target_color(image, 3)
   rectsP = find_rect_of_target_color(image, 4)
   rectsY = find_rect_of_target_color(image, 5)
-  
+
   if len(rectsR) >0:
      rectR = max(rectsR, key = (lambda x: x[2] * x[3]))
      cv2.rectangle(image, tuple(rectR[0:2]), tuple(rectR[0:2] + rectR[2:4]), (0, 0, 255), thickness=2)
   if len(rectsB) >0:
-     rectB = max(rectsB, key = (lambda x: x[2] * x[3]))
-     cv2.rectangle(image, tuple(rectB[0:2]), tuple(rectB[0:2] + rectB[2:4]), (255, 0, 0), thickness=2)
-     print ('w:' + str(rectB[2]) + ',h:' + str(rectB[3]))
-     print (str(900 - rectB[3]*700/42) + '[mm]')
-  if len(rectsG) >0:
-     rectG = max(rectsG, key = (lambda x: x[2] * x[3]))
-     cv2.rectangle(image, tuple(rectG[0:2]), tuple(rectG[0:2] + rectG[2:4]), (0, 255, 0), thickness=2)
-  if len(rectsP) >0:
-     rectP = max(rectsP, key = (lambda x: x[2] * x[3]))
-     cv2.rectangle(image, tuple(rectP[0:2]), tuple(rectP[0:2] + rectP[2:4]), (168, 87, 167), thickness=2)
-  if len(rectsY) >0:
-     rectY = max(rectsY, key = (lambda x: x[2] * x[3]))
-     cv2.rectangle(image, tuple(rectY[0:2]), tuple(rectY[0:2] + rectY[2:4]), (0, 199, 227), thickness=2)
+     rectB = tuple(max(rectsB, key = (lambda x: x[1][0] * x[1][1])))
+     #cv2.rectangle(image, tuple(rectB[0:2]), tuple(rectB[0:2] + rectB[2:4]), (255, 0, 0), thickness=1)
+     #print (rectB)
+     box = cv2.boxPoints(rectB)
+     box = np.int0(box)
+     image = cv2.drawContours(image,[box],0,(0,0,255),2)
+     print ('w:' + str(rectB[1][0]) + ',h:' + str(rectB[1][1]))
+     #print (str(900 - rectB[3]*700/42) + '[mm]')
+     #print (87*42*200/(rectB[2]*rectB[3]))
+     #ミラー画像上での距離の導出
+     print (math.sqrt( ((rectB[0][0] + rectB[1][0]/2) - FRAME_W/2)**2 + ((rectB[0][1] + rectB[1][1]/2) - (FRAME_H/2+10))**2 ))
+     #print (str(radiusV/194.28394169359444 * 200) + '[mm]')
+
 
   #originX,originY = (int)(FRAME_W/2+10), (int)(FRAME_H/2-20)
   #x, y = rectR[0]+(int)(rectR[2]/2.0), rectR[1]+(int)(rectR[3]/2.0)
@@ -137,6 +143,6 @@ if __name__ == '__main__':
   # calc distance
   #distance = calcDistance(originX,originY,x,y)
   #print("Distance = ", distance)
-  
+
   cv2.imshow('Recognition Now.', image)
   key_action(image)
