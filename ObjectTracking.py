@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # Moving Image + Recognition of Red Color + Display of Maximum Area
 # import the necessary packages
-
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 import time
 import cv2
 import numpy as np
@@ -10,9 +11,6 @@ import threading
 import json
 import sys
 import math
-
-#コマンドライン引数の受け取りのため
-args = sys.argv
 
 # フレームサイズ
 FRAME_W = 800
@@ -28,6 +26,9 @@ colorRange = [[30*HSV_CONV,330*HSV_CONV], [200*HSV_CONV,240*HSV_CONV], [80*HSV_C
 # 距離導出関数のマジックナンバー (係数,指数)
 COEFFICIENT_DF = 200198
 INDEX_DF = -0.808
+
+#コマンドライン引数の受け取りのため
+args = sys.argv
 #-----------------------------------------------------------------------------------
 # Loading Image's
 def loading_still_image():
@@ -67,7 +68,7 @@ def cut_circle(img):
   return result
 
 # Find Target Color
-def find_rect_of_target_color(getImage,colorNum):
+def find_rect_of_target_color(getImage, colorNum):
   hsv = cv2.cvtColor(getImage, cv2.COLOR_BGR2HSV_FULL)
   h = hsv[:, :, 0]
   s = hsv[:, :, 1]
@@ -111,23 +112,38 @@ def draw_rotation_rectangle(rects,image):
   print (str(COEFFICIENT_DF*((rect[1][0]*rect[1][1])**(INDEX_DF))))
 
 if __name__ == '__main__':
-  # Loading Image's
-  image = loading_still_image()
+  # Loading Still Image
+  #image = loading_still_image()
+
+  # Loading Moving Image
+  camera = PiCamera()
+  camera.resolution = (FRAME_W, FRAME_H)
+  camera.awb_mode = 'auto'
+  camera.framerate = 32
+  rawCapture = PiRGBArray(camera, size=(FRAME_W, FRAME_H))
+
+  # allow the camera to warmup
+  time.sleep(0.005)
 
   rectsR = []
   rectsB = []
   rectsG = []
 
-  # ミラー領域の切り取り
-  image = cut_circle(image)
+  # capture frames from the camera
+  for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+  	# grab the raw NumPy array representing the image, then initialize the timestamp
+  	# and occupied/unoccupied text
+  	frame_image = frame.array
 
-  # 色領域の検出と矩形の値導出
-  rectsR = find_rect_of_target_color(image, 1)
-  rectsB = find_rect_of_target_color(image, 2)
-  rectsG = find_rect_of_target_color(image, 3)
+    # ミラー領域の切り取り
+  	image = cut_circle(frame_image)
+    # 色領域の検出と矩形の値導出
+  	rectsR = find_rect_of_target_color(image, 1)
+  	rectsB = find_rect_of_target_color(image, 2)
+  	rectsG = find_rect_of_target_color(image, 3)
 
-  if len(rectsB) >0:
-     draw_rotation_rectangle(rectsB,image)
+  	if len(rectsB) >0:
+  	  	draw_rotation_rectangle(rectsB,image)
 
-  cv2.imshow('Recognition Now.', image)
-  key_action(image)
+  	cv2.imshow('Recognition Now.', image)
+  	key_action(image)
