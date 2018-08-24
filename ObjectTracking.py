@@ -30,10 +30,19 @@ INDEX_DF = -0.808
 #コマンドライン引数の受け取りのため
 args = sys.argv
 #-----------------------------------------------------------------------------------
-# Loading Image's
+# Loading still Image
 def loading_still_image():
   image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\'+str(FILE_DIST)+'mm.jpg')
-  return image
+  return
+
+# Loading Image from PiCamera
+def loading_image_PiCamera():
+    camera = PiCamera()
+    camera.resolution = (FRAME_W, FRAME_H)
+    camera.awb_mode = 'auto'
+    camera.framerate = 32
+    rawCapture = PiRGBArray(camera, size=(FRAME_W, FRAME_H))
+    return rawCapture
 
 #キー処理＆画面終了＆保存
 def key_action(image):
@@ -113,14 +122,10 @@ def draw_rotation_rectangle(rects,image):
 
 if __name__ == '__main__':
   # Loading Still Image
-  #image = loading_still_image()
+  image = loading_still_image()
 
   # Loading Moving Image
-  camera = PiCamera()
-  camera.resolution = (FRAME_W, FRAME_H)
-  camera.awb_mode = 'auto'
-  camera.framerate = 32
-  rawCapture = PiRGBArray(camera, size=(FRAME_W, FRAME_H))
+  rawCapture = loading_image_PiCamera()
 
   # allow the camera to warmup
   time.sleep(0.005)
