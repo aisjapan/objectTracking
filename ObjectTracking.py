@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 # Moving Image + Recognition of Red Color + Display of Maximum Area
 # import the necessary packages
-from picamera.array import PiRGBArray
-from picamera import PiCamera
-import time
 import cv2
 import numpy as np
 import serial
@@ -18,6 +15,7 @@ FRAME_H = 600
 
 #読み込むピクチャのファイル名
 FILE_DIST = 200
+FILE_DIST_COLOR = 100
 
 HSV_CONV = 0.70 #HSV, 360dankai => 256dankai , 250/360 = 0.7
 #colorRange = [[RedMin],[RedMax],[BlueMin],[BlueMax],[GreenMin],[GreenMax],[PurpleMin][PurpleMax],[YellowMin][YellowMax]]
@@ -33,7 +31,8 @@ args = sys.argv
 # Loading still Image
 def loading_still_image():
   image = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\'+str(FILE_DIST)+'mm.jpg')
-  return
+  template = cv2.imread('C:\\Users\\nct20\\Documents\\GitHub\\objectTracking\\image_input\\'+'color_sample_'+str(FILE_DIST_COLOR)+'mm.jpg')
+  return image
 
 # Loading Image from PiCamera
 def loading_image_PiCamera():
@@ -125,30 +124,24 @@ if __name__ == '__main__':
   image = loading_still_image()
 
   # Loading Moving Image
-  rawCapture = loading_image_PiCamera()
+  #rawCapture = loading_image_PiCamera()
 
   # allow the camera to warmup
-  time.sleep(0.005)
+  #time.sleep(0.005)
 
   rectsR = []
   rectsB = []
   rectsG = []
 
-  # capture frames from the camera
-  for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-  	# grab the raw NumPy array representing the image, then initialize the timestamp
-  	# and occupied/unoccupied text
-  	frame_image = frame.array
+  # ミラー領域の切り取り
+  image = cut_circle(image)
+  # 色領域の検出と矩形の値導出
+  rectsR = find_rect_of_target_color(image, 1)
+  rectsB = find_rect_of_target_color(image, 2)
+  rectsG = find_rect_of_target_color(image, 3)
 
-    # ミラー領域の切り取り
-  	image = cut_circle(frame_image)
-    # 色領域の検出と矩形の値導出
-  	rectsR = find_rect_of_target_color(image, 1)
-  	rectsB = find_rect_of_target_color(image, 2)
-  	rectsG = find_rect_of_target_color(image, 3)
+  if len(rectsB) >0:
+  	draw_rotation_rectangle(rectsB,image)
 
-  	if len(rectsB) >0:
-  	  	draw_rotation_rectangle(rectsB,image)
-
-  	cv2.imshow('Recognition Now.', image)
-  	key_action(image)
+  cv2.imshow('Recognition Now.', image)
+  key_action(image)
